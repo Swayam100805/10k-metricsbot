@@ -1,0 +1,8 @@
+
+Retrieval: right passage in top-5 for 20/20 questions
+=== END-TO-END (retrieval + reader) (20 questions) ===
+Extractive  correct 10/20 | picked a wrong number 8 | no number 2 | number not in passage 0
+Generative  correct 9/20 | picked a wrong number 6 | no number 5 | number not in passage 1
+=== ORACLE PASSAGE (reader only) (20 questions) ===
+Extractive  correct 9/20 | picked a wrong number 8 | no number 3 | number not in passage 0
+Generative  correct 10/20 | picked a wrong number 4 | no number 6 | number not in passage 0

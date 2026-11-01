@@ -1,0 +1,830 @@
+{
+  "end_to_end": [
+    {
+      "question": "What were Apple's total net sales in fiscal 2025?",
+      "gold": [
+        "416,161"
+      ],
+      "retrieval_hit": true,
+      "extractive": {
+        "answer": "$ 416,161",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "$ 416,161 6 % $ 391,035 2 % $ 383,285",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "What was Apple's operating income in fiscal 2025?",
+      "gold": [
+        "133,050"
+      ],
+      "retrieval_hit": true,
+      "extractive": {
+        "answer": "$ 114,301",
+        "correct": false,
+        "wrong_number": true,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "36,098 $ 30,328 $ 11,888 $ 12,066 $ (36,587)",
+        "correct": false,
+        "wrong_number": true,
+        "no_number": false,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "What was Apple's net income in fiscal 2025?",
+      "gold": [
+        "112,010"
+      ],
+      "retrieval_hit": true,
+      "extractive": {
+        "answer": "$ 112,010 $ 93,736 $ 96,995",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "$ 112,010 $ 93,736 $ 96,995",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "What was Apple's diluted earnings per share in fiscal 2025?",
+      "gold": [
+        "7.46"
+      ],
+      "retrieval_hit": true,
+      "extractive": {
+        "answer": "Basic $ 7.49 $ 6.11 $ 6.16",
+        "correct": false,
+        "wrong_number": true,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "15.408,095",
+        "correct": false,
+        "wrong_number": true,
+        "no_number": false,
+        "invented_number": true
+      }
+    },
+    {
+      "question": "What were iPhone net sales in fiscal 2025?",
+      "gold": [
+        "209,586"
+      ],
+      "retrieval_hit": true,
+      "extractive": {
+        "answer": "$ 209,586 4 % $ 201,183",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "iPhone, Services and iPad",
+        "correct": false,
+        "wrong_number": false,
+        "no_number": true,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "What were Services net sales in fiscal 2025?",
+      "gold": [
+        "109,158"
+      ],
+      "retrieval_hit": true,
+      "extractive": {
+        "answer": "increased",
+        "correct": false,
+        "wrong_number": false,
+        "no_number": true,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "advertising, the App Store and cloud services",
+        "correct": false,
+        "wrong_number": false,
+        "no_number": true,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "What was Apple's total gross margin percentage in fiscal 2025?",
+      "gold": [
+        "46.9"
+      ],
+      "retrieval_hit": true,
+      "extractive": {
+        "answer": "$ 195,201 $ 180,683 $ 169,148",
+        "correct": false,
+        "wrong_number": true,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "169,148",
+        "correct": false,
+        "wrong_number": true,
+        "no_number": false,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "What were Mac net sales in fiscal 2025?",
+      "gold": [
+        "33,708"
+      ],
+      "retrieval_hit": true,
+      "extractive": {
+        "answer": "increased",
+        "correct": false,
+        "wrong_number": false,
+        "no_number": true,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "laptops and desktops",
+        "correct": false,
+        "wrong_number": false,
+        "no_number": true,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "What were iPad net sales in fiscal 2025?",
+      "gold": [
+        "28,023"
+      ],
+      "retrieval_hit": true,
+      "extractive": {
+        "answer": "29,357",
+        "correct": false,
+        "wrong_number": true,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "millions",
+        "correct": false,
+        "wrong_number": false,
+        "no_number": true,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "What were Wearables, Home and Accessories net sales in fiscal 2025?",
+      "gold": [
+        "35,686"
+      ],
+      "retrieval_hit": true,
+      "extractive": {
+        "answer": "28,300",
+        "correct": false,
+        "wrong_number": true,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "Services",
+        "correct": false,
+        "wrong_number": false,
+        "no_number": true,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "What was total revenue, net of interest expense, in 2025?",
+      "gold": [
+        "113,097",
+        "113.1"
+      ],
+      "retrieval_hit": true,
+      "extractive": {
+        "answer": "49,796",
+        "correct": false,
+        "wrong_number": true,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "113,097 105,856",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "What was Bank of America's net income in 2025?",
+      "gold": [
+        "30.5",
+        "30,509"
+      ],
+      "retrieval_hit": true,
+      "extractive": {
+        "answer": "$30.5 billion,",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "$30.5 billion",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "What was Bank of America's diluted earnings per share in 2025?",
+      "gold": [
+        "3.81"
+      ],
+      "retrieval_hit": true,
+      "extractive": {
+        "answer": "$ 3.07",
+        "correct": false,
+        "wrong_number": true,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "3.86 $ 3.23 $ 3.07",
+        "correct": false,
+        "wrong_number": true,
+        "no_number": false,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "How much did Apple spend repurchasing its common stock in fiscal 2025?",
+      "gold": [
+        "89.3"
+      ],
+      "retrieval_hit": true,
+      "extractive": {
+        "answer": "$89.3 billion.",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "499,372)",
+        "correct": false,
+        "wrong_number": true,
+        "no_number": false,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "How much did Apple pay in dividends and dividend equivalents in fiscal 2025?",
+      "gold": [
+        "15.4"
+      ],
+      "retrieval_hit": true,
+      "extractive": {
+        "answer": "$15.4 billion.",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "$15.4 billion",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "How many full-time equivalent employees did Apple have as of September 27, 2025?",
+      "gold": [
+        "166,000"
+      ],
+      "retrieval_hit": true,
+      "extractive": {
+        "answer": "166,000",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "166,000",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "How many employees did Bank of America have at December 31, 2025?",
+      "gold": [
+        "213,000"
+      ],
+      "retrieval_hit": true,
+      "extractive": {
+        "answer": "213,000",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "213,000",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "What percent of Bank of America's employees were located in the U.S. in 2025?",
+      "gold": [
+        "77"
+      ],
+      "retrieval_hit": true,
+      "extractive": {
+        "answer": "78 percent,",
+        "correct": false,
+        "wrong_number": true,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "78",
+        "correct": false,
+        "wrong_number": true,
+        "no_number": false,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "How many employees found new roles within Bank of America in 2025?",
+      "gold": [
+        "14,000"
+      ],
+      "retrieval_hit": true,
+      "extractive": {
+        "answer": "more than 14,000",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "14,000",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "How many hours of training did Bank of America deliver to employees in 2025?",
+      "gold": [
+        "7.6"
+      ],
+      "retrieval_hit": true,
+      "extractive": {
+        "answer": "7.6 million",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "7.6 million",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      }
+    }
+  ],
+  "oracle": [
+    {
+      "question": "What were Apple's total net sales in fiscal 2025?",
+      "gold": [
+        "416,161"
+      ],
+      "extractive": {
+        "answer": "85,200",
+        "correct": false,
+        "wrong_number": true,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "416,161 $ 391,035 $ 383,285",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "What was Apple's operating income in fiscal 2025?",
+      "gold": [
+        "133,050"
+      ],
+      "extractive": {
+        "answer": "133,050 123,216",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "133,050",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "What was Apple's net income in fiscal 2025?",
+      "gold": [
+        "112,010"
+      ],
+      "extractive": {
+        "answer": "millions and shares in thousands):",
+        "correct": false,
+        "wrong_number": false,
+        "no_number": true,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "millions and shares in thousands",
+        "correct": false,
+        "wrong_number": false,
+        "no_number": true,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "What was Apple's diluted earnings per share in fiscal 2025?",
+      "gold": [
+        "7.46"
+      ],
+      "extractive": {
+        "answer": "$ 7.46",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "Approximately 24 million restricted stock units (\u201cRSUs\u201d) were excluded from the computation of diluted earnings per share for 2023 because their effect would have been antidilutive",
+        "correct": false,
+        "wrong_number": true,
+        "no_number": false,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "What were iPhone net sales in fiscal 2025?",
+      "gold": [
+        "209,586"
+      ],
+      "extractive": {
+        "answer": "$ 209,586 4 % $ 201,183",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "iPhone, Services and iPad",
+        "correct": false,
+        "wrong_number": false,
+        "no_number": true,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "What were Services net sales in fiscal 2025?",
+      "gold": [
+        "109,158"
+      ],
+      "extractive": {
+        "answer": "amortization of the deferred value of services bundled in the sales price of certain products.",
+        "correct": false,
+        "wrong_number": false,
+        "no_number": true,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "amortization of the deferred value of services bundled in the sales price of certain products",
+        "correct": false,
+        "wrong_number": false,
+        "no_number": true,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "What was Apple's total gross margin percentage in fiscal 2025?",
+      "gold": [
+        "46.9"
+      ],
+      "extractive": {
+        "answer": "70.8%",
+        "correct": false,
+        "wrong_number": true,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "169,148",
+        "correct": false,
+        "wrong_number": true,
+        "no_number": false,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "What were Mac net sales in fiscal 2025?",
+      "gold": [
+        "33,708"
+      ],
+      "extractive": {
+        "answer": "higher net sales of iPhone, Services and iPad.",
+        "correct": false,
+        "wrong_number": false,
+        "no_number": true,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "iPhone, Services and iPad",
+        "correct": false,
+        "wrong_number": false,
+        "no_number": true,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "What were iPad net sales in fiscal 2025?",
+      "gold": [
+        "28,023"
+      ],
+      "extractive": {
+        "answer": "29,357",
+        "correct": false,
+        "wrong_number": true,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "millions",
+        "correct": false,
+        "wrong_number": false,
+        "no_number": true,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "What were Wearables, Home and Accessories net sales in fiscal 2025?",
+      "gold": [
+        "35,686"
+      ],
+      "extractive": {
+        "answer": "28,300",
+        "correct": false,
+        "wrong_number": true,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "Services",
+        "correct": false,
+        "wrong_number": false,
+        "no_number": true,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "What was total revenue, net of interest expense, in 2025?",
+      "gold": [
+        "113,097",
+        "113.1"
+      ],
+      "extractive": {
+        "answer": "49,796",
+        "correct": false,
+        "wrong_number": true,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "113,097 105,856",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "What was Bank of America's net income in 2025?",
+      "gold": [
+        "30.5",
+        "30,509"
+      ],
+      "extractive": {
+        "answer": "93",
+        "correct": false,
+        "wrong_number": true,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "30,509 $ 26,973 $ 26,305",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "What was Bank of America's diluted earnings per share in 2025?",
+      "gold": [
+        "3.81"
+      ],
+      "extractive": {
+        "answer": "8,080.5",
+        "correct": false,
+        "wrong_number": true,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "3.81 $ 3.19 $ 3.05",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "How much did Apple spend repurchasing its common stock in fiscal 2025?",
+      "gold": [
+        "89.3"
+      ],
+      "extractive": {
+        "answer": "$89.3 billion.",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "499,372)",
+        "correct": false,
+        "wrong_number": true,
+        "no_number": false,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "How much did Apple pay in dividends and dividend equivalents in fiscal 2025?",
+      "gold": [
+        "15.4"
+      ],
+      "extractive": {
+        "answer": "$15.4 billion.",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "$15.4 billion",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "How many full-time equivalent employees did Apple have as of September 27, 2025?",
+      "gold": [
+        "166,000"
+      ],
+      "extractive": {
+        "answer": "166,000",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "166,000",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "How many employees did Bank of America have at December 31, 2025?",
+      "gold": [
+        "213,000"
+      ],
+      "extractive": {
+        "answer": "213,000",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "213,000",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "What percent of Bank of America's employees were located in the U.S. in 2025?",
+      "gold": [
+        "77"
+      ],
+      "extractive": {
+        "answer": "78 percent,",
+        "correct": false,
+        "wrong_number": true,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "78",
+        "correct": false,
+        "wrong_number": true,
+        "no_number": false,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "How many employees found new roles within Bank of America in 2025?",
+      "gold": [
+        "14,000"
+      ],
+      "extractive": {
+        "answer": "more than 14,000",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "14,000",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      }
+    },
+    {
+      "question": "How many hours of training did Bank of America deliver to employees in 2025?",
+      "gold": [
+        "7.6"
+      ],
+      "extractive": {
+        "answer": "7.6 million",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      },
+      "generative": {
+        "answer": "7.6 million",
+        "correct": true,
+        "wrong_number": false,
+        "no_number": false,
+        "invented_number": false
+      }
+    }
+  ]
+}

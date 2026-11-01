@@ -1,0 +1,22 @@
+[
+  {"filing": "tech_10k", "type": "table", "question": "What were Apple's total net sales in fiscal 2025?", "answers": ["416,161"]},
+  {"filing": "tech_10k", "type": "table", "question": "What was Apple's operating income in fiscal 2025?", "answers": ["133,050"]},
+  {"filing": "tech_10k", "type": "table", "question": "What was Apple's net income in fiscal 2025?", "answers": ["112,010"]},
+  {"filing": "tech_10k", "type": "table", "question": "What was Apple's diluted earnings per share in fiscal 2025?", "answers": ["7.46"]},
+  {"filing": "tech_10k", "type": "table", "question": "What were iPhone net sales in fiscal 2025?", "answers": ["209,586"]},
+  {"filing": "tech_10k", "type": "table", "question": "What were Services net sales in fiscal 2025?", "answers": ["109,158"]},
+  {"filing": "tech_10k", "type": "table", "question": "What was Apple's total gross margin percentage in fiscal 2025?", "answers": ["46.9"]},
+  {"filing": "tech_10k", "type": "table", "question": "What were Mac net sales in fiscal 2025?", "answers": ["33,708"]},
+  {"filing": "tech_10k", "type": "table", "question": "What were iPad net sales in fiscal 2025?", "answers": ["28,023"]},
+  {"filing": "tech_10k", "type": "table", "question": "What were Wearables, Home and Accessories net sales in fiscal 2025?", "answers": ["35,686"]},
+  {"filing": "bank_10k", "type": "table", "question": "What was total revenue, net of interest expense, in 2025?", "answers": ["113,097", "113.1"]},
+  {"filing": "bank_10k", "type": "prose", "question": "What was Bank of America's net income in 2025?", "answers": ["30.5", "30,509"]},
+  {"filing": "bank_10k", "type": "prose", "question": "What was Bank of America's diluted earnings per share in 2025?", "answers": ["3.81"]},
+  {"filing": "tech_10k", "type": "prose", "question": "How much did Apple spend repurchasing its common stock in fiscal 2025?", "answers": ["89.3"]},
+  {"filing": "tech_10k", "type": "prose", "question": "How much did Apple pay in dividends and dividend equivalents in fiscal 2025?", "answers": ["15.4"]},
+  {"filing": "tech_10k", "type": "prose", "question": "How many full-time equivalent employees did Apple have as of September 27, 2025?", "answers": ["166,000"]},
+  {"filing": "bank_10k", "type": "prose", "question": "How many employees did Bank of America have at December 31, 2025?", "answers": ["213,000"]},
+  {"filing": "bank_10k", "type": "prose", "question": "What percent of Bank of America's employees were located in the U.S. in 2025?", "answers": ["77"]},
+  {"filing": "bank_10k", "type": "prose", "question": "How many employees found new roles within Bank of America in 2025?", "answers": ["14,000"]},
+  {"filing": "bank_10k", "type": "prose", "question": "How many hours of training did Bank of America deliver to employees in 2025?", "answers": ["7.6"]}
+]

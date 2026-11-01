@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>10K-MetricsBot</title>
+<style>
+  :root {
+    --bg: #f5f6f8; --card: #ffffff; --text: #1a1d23; --muted: #667085; --line: #e3e6ec;
+    --accent: #2457d6; --accent-soft: #e8eefc; --ok: #137a4b; --ok-soft: #e3f5ec;
+    --warn: #8a5a00; --warn-soft: #fff4d6; --err: #b3261e; --err-soft: #fde8e6; --mark: #ffe58a;
+    --c0: #d9534f; --c1: #2f80ed; --c2: #f2994a; --c3: #27ae60;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1218; --card: #181c25; --text: #e8eaf0; --muted: #98a1b3; --line: #2a303d;
+      --accent: #7aa2ff; --accent-soft: #1d2a4a; --ok: #5fd39a; --ok-soft: #12301f;
+      --warn: #f3c969; --warn-soft: #33290f; --err: #ff8a80; --err-soft: #3a1714; --mark: #6b5a12;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 28px 18px 60px; }
+  header h1 { margin: 0; font-size: 26px; letter-spacing: -0.5px; }
+  header p { margin: 4px 0 0; color: var(--muted); }
+  .tabs { display: flex; gap: 6px; margin: 22px 0 14px; }
+  .tab { padding: 8px 16px; border: 1px solid var(--line); background: var(--card); color: var(--muted);
+         border-radius: 999px; cursor: pointer; font: inherit; }
+  .tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px; margin-bottom: 16px; }
+  label { display: block; font-weight: 600; margin-bottom: 6px; }
+  select, textarea, input[type=text] { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px;
+         background: var(--bg); color: var(--text); font: inherit; }
+  textarea { resize: vertical; min-height: 90px; }
+  .row { margin-bottom: 14px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .chip { border: 1px solid var(--line); background: var(--accent-soft); color: var(--accent); padding: 5px 11px;
+          border-radius: 999px; cursor: pointer; font-size: 13px; }
+  button.go { background: var(--accent); color: #fff; border: 0; padding: 11px 22px; border-radius: 10px;
+              font: inherit; font-weight: 600; cursor: pointer; }
+  button.go:disabled { opacity: .6; cursor: wait; }
+  .hidden { display: none; }
+  .err { background: var(--err-soft); color: var(--err); border-radius: 10px; padding: 12px; margin-top: 14px; }
+  .answer-label { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .6px; }
+  .answer-big { font-size: 38px; font-weight: 700; letter-spacing: -1px; margin: 2px 0 6px; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; margin-right: 6px; }
+  .badge.ok { background: var(--ok-soft); color: var(--ok); }
+  .badge.warn { background: var(--warn-soft); color: var(--warn); }
+  .raw { color: var(--muted); font-size: 13px; margin-top: 6px; word-break: break-word; }
+  h3 { margin: 0 0 10px; font-size: 14px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
+  .passage { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 12px; font-size: 14px; word-break: break-word; }
+  mark { background: var(--mark); color: inherit; padding: 1px 3px; border-radius: 4px; }
+  .bar-row { display: grid; grid-template-columns: 140px 1fr 52px; gap: 10px; align-items: center; margin: 6px 0; font-size: 14px; }
+  .bar { height: 10px; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+  .bar > div { height: 100%; border-radius: 999px; }
+  .bar-row.top .name { font-weight: 700; }
+  .note { color: var(--warn); background: var(--warn-soft); border-radius: 10px; padding: 10px 12px; font-size: 13px; }
+  .small { font-size: 12.5px; color: var(--muted); }
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #ffffff55; border-top-color: #fff;
+             border-radius: 50%; animation: spin .7s linear infinite; vertical-align: -2px; margin-right: 8px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (max-width: 560px) { .bar-row { grid-template-columns: 100px 1fr 46px; } .answer-big { font-size: 30px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>10K-MetricsBot</h1>
+    <p>Ask numeric questions about SEC 10-K filings. Answers are copied exactly from the filing, never generated.</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" id="tab-ask" type="button">Ask a filing</button>
+    <button class="tab" id="tab-risk" type="button">Classify risk</button>
+  </div>
+
+  <!-- ASK TAB -->
+  <section id="panel-ask">
+    <div class="card">
+      <div class="row">
+        <label for="filing">Filing</label>
+        <select id="filing"></select>
+      </div>
+      <div class="row hidden" id="paste-row">
+        <label for="filing-text">Paste filing text</label>
+        <textarea id="filing-text" placeholder="Paste at least a few paragraphs of a filing..."></textarea>
+      </div>
+      <div class="row">
+        <label for="question">Question</label>
+        <input type="text" id="question" placeholder="e.g. What were Apple's total net sales in fiscal 2025?">
+        <div class="chips" id="chips"></div>
+      </div>
+      <button class="go" id="ask-btn" type="button">Ask</button>
+      <div class="err hidden" id="ask-err"></div>
+    </div>
+
+    <div id="result" class="hidden">
+      <div class="card">
+        <div class="answer-label">Answer</div>
+        <div class="answer-big" id="r-answer"></div>
+        <span class="badge ok">Exact text from filing</span>
+        <span class="badge warn" id="r-conf"></span>
+        <div class="raw" id="r-raw"></div>
+      </div>
+      <div class="card">
+        <h3>Source passage</h3>
+        <div class="passage" id="r-passage"></div>
+        <p class="small" style="margin-bottom:0">Check the highlighted answer against the passage. In financial tables the wrong year column is the most common mistake.</p>
+      </div>
+      <div class="card">
+        <h3>Risk type of the source passage</h3>
+        <div id="r-risk"></div>
+      </div>
+      <div class="card">
+        <h3>Short summary (generated by FLAN-T5-small)</h3>
+        <div id="r-summary"></div>
+        <p class="small" style="margin-bottom:0">This text is generated and may be wrong. Numbers above come from the extractive model only.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- RISK TAB -->
+  <section id="panel-risk" class="hidden">
+    <div class="card">
+      <div class="row">
+        <label for="risk-text">Sentence from a filing</label>
+        <textarea id="risk-text" placeholder="e.g. We may be unable to raise capital on acceptable terms when our obligations come due."></textarea>
+      </div>
+      <button class="go" id="risk-btn" type="button">Classify</button>
+      <div class="err hidden" id="risk-err"></div>
+    </div>
+    <div class="card hidden" id="risk-result">
+      <h3>Predicted risk category</h3>
+      <div id="risk-out"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const COLORS = { "Credit Risk": "var(--c0)", "Liquidity Risk": "var(--c1)", "Operational Risk": "var(--c2)", "Market Growth": "var(--c3)" };
+const EXAMPLES = {
+  tech_10k: ["What were Apple's total net sales in fiscal 2025?",
+             "How many full-time equivalent employees did Apple have as of September 27, 2025?",
+             "How much did Apple spend repurchasing its common stock in fiscal 2025?"],
+  bank_10k: ["What was Bank of America's net income in 2025?",
+             "How many employees did Bank of America have at December 31, 2025?",
+             "How many hours of training did Bank of America deliver to employees in 2025?"]
+};
+
+function esc(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+async function api(path, body) {
+  const res = await fetch(path, {
+    method: body ? "POST" : "GET",
+    headers: { "Content-Type": "application/json" },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  let data = {};
+  try { data = await res.json(); } catch (e) {}
+  if (!res.ok) {
+    let msg = data.detail || ("Request failed (" + res.status + ")");
+    if (Array.isArray(msg)) msg = msg.map((m) => m.msg).join("; ");
+    throw new Error(msg);
+  }
+  return data;
+}
+
+function setBusy(btn, busy, label) {
+  btn.disabled = busy;
+  btn.innerHTML = busy ? '<span class="spinner"></span>Working...' : label;
+}
+function showErr(id, msg) { const el = $(id); el.textContent = msg; el.classList.toggle("hidden", !msg); }
+
+function bars(scores, topLabel) {
+  return Object.entries(scores).sort((a, b) => b[1] - a[1]).map(([name, p]) =>
+    '<div class="bar-row' + (name === topLabel ? " top" : "") + '"><span class="name">' + esc(name) + '</span>' +
+    '<div class="bar"><div style="width:' + (p * 100).toFixed(1) + '%;background:' + (COLORS[name] || "var(--accent)") + '"></div></div>' +
+    '<span>' + (p * 100).toFixed(1) + '%</span></div>').join("");
+}
+
+function highlight(passage, answer) {
+  const i = answer ? passage.indexOf(answer) : -1;
+  if (i < 0) return esc(passage);
+  return esc(passage.slice(0, i)) + "<mark>" + esc(answer) + "</mark>" + esc(passage.slice(i + answer.length));
+}
+
+function headline(answer) {
+  const m = answer.match(/\(?\$?\s?\d[\d,]*(?:\.\d+)?\)?\s?(?:%|percent|billion|million|thousand|bps)?/i);
+  return m ? m[0].trim() : answer;
+}
+
+/* ---- tabs ---- */
+function showTab(which) {
+  $("panel-ask").classList.toggle("hidden", which !== "ask");
+  $("panel-risk").classList.toggle("hidden", which !== "risk");
+  $("tab-ask").classList.toggle("active", which === "ask");
+  $("tab-risk").classList.toggle("active", which === "risk");
+}
+$("tab-ask").onclick = () => showTab("ask");
+$("tab-risk").onclick = () => showTab("risk");
+
+/* ---- filing list + example chips ---- */
+function renderChips() {
+  const name = $("filing").value;
+  $("chips").innerHTML = (EXAMPLES[name] || []).map((q) => '<span class="chip">' + esc(q) + "</span>").join("");
+  document.querySelectorAll(".chip").forEach((c) => (c.onclick = () => { $("question").value = c.textContent; $("question").focus(); }));
+}
+$("filing").onchange = () => { $("paste-row").classList.toggle("hidden", $("filing").value !== "__paste__"); renderChips(); };
+
+async function loadFilings() {
+  let names = [];
+  try { names = (await api("/filings")).filings; } catch (e) { showErr("ask-err", "Could not load the filing list: " + e.message); }
+  $("filing").innerHTML = names.map((n) => '<option value="' + esc(n) + '">' + esc(n) + "</option>").join("") +
+                          '<option value="__paste__">Paste my own text...</option>';
+  renderChips();
+}
+
+/* ---- ask ---- */
+async function ask() {
+  showErr("ask-err", "");
+  const question = $("question").value.trim();
+  if (question.length < 5) return showErr("ask-err", "Please type a question.");
+  const body = { question };
+  if ($("filing").value === "__paste__") {
+    body.filing_text = $("filing-text").value.trim();
+    if (!body.filing_text) return showErr("ask-err", "Please paste some filing text.");
+  } else {
+    body.filing_name = $("filing").value;
+  }
+  setBusy($("ask-btn"), true, "Ask");
+  try {
+    const d = await api("/query-filing", body);
+    $("r-answer").textContent = headline(d.answer);
+    $("r-raw").textContent = "Extracted text: " + d.answer;
+    $("r-conf").textContent = "Confidence score " + d.confidence.toFixed(2);
+    $("r-passage").innerHTML = highlight(d.source_passage, d.answer);
+    $("r-risk").innerHTML = d.risk_scores
+      ? "<p style='margin-top:0'>Most likely: <b>" + esc(d.risk_category) + "</b></p>" + bars(d.risk_scores, d.risk_category)
+      : '<div class="note">' + esc(d.risk_note || "Not classified.") + "</div>";
+    $("r-summary").textContent = d.passage_summary || "(no summary)";
+    $("result").classList.remove("hidden");
+    $("result").scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (e) {
+    $("result").classList.add("hidden");
+    showErr("ask-err", e.message);
+  } finally {
+    setBusy($("ask-btn"), false, "Ask");
+  }
+}
+$("ask-btn").onclick = ask;
+$("question").addEventListener("keydown", (e) => { if (e.key === "Enter") ask(); });
+
+/* ---- classify ---- */
+async function classify() {
+  showErr("risk-err", "");
+  const text = $("risk-text").value.trim();
+  if (text.length < 20) return showErr("risk-err", "Please enter a longer sentence (at least 20 characters).");
+  setBusy($("risk-btn"), true, "Classify");
+  try {
+    const d = await api("/classify-risk", { text });
+    $("risk-out").innerHTML = "<p style='margin-top:0'>Most likely: <b>" + esc(d.risk_category) + "</b></p>" + bars(d.scores, d.risk_category);
+    $("risk-result").classList.remove("hidden");
+  } catch (e) {
+    $("risk-result").classList.add("hidden");
+    showErr("risk-err", e.message);
+  } finally {
+    setBusy($("risk-btn"), false, "Classify");
+  }
+}
+$("risk-btn").onclick = classify;
+
+loadFilings();
+</script>
+</body>
+</html>

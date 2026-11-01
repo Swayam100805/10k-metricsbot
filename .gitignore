@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+*.pyc
+models/
+data/*.pdf
+.hf_cache/
+.ipynb_checkpoints/
+*.safetensors
+*.pt
