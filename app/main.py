@@ -1,12 +1,15 @@
 import sys, re, hashlib
+import uuid
+import fitz
 from pathlib import Path
 from typing import Optional
+
 
 BASE = Path(__file__).resolve().parent.parent
 sys.path.append(str(BASE / "src"))
 
 import torch
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
@@ -74,6 +77,102 @@ class RiskQuery(BaseModel):
 @app.get("/", include_in_schema=False)
 def home():
     return FileResponse(BASE / "app" / "static" / "index.html")
+
+
+# ---------- PDF Upload Feature ----------
+
+UPLOAD_DIR = DATA_DIR / "uploads"
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+MAX_UPLOAD_SIZE = 25 * 1024 * 1024  # 25 MB
+
+
+@app.post("/upload-filing")
+async def upload_filing(file: UploadFile = File(...)):
+
+    # 1. Validate file extension
+    if not file.filename or not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(
+            status_code=400,
+            detail="Please upload a PDF file."
+        )
+
+    # 2. Read uploaded file
+    contents = await file.read(MAX_UPLOAD_SIZE + 1)
+
+    if len(contents) > MAX_UPLOAD_SIZE:
+        raise HTTPException(
+            status_code=413,
+            detail="File size exceeds 25 MB."
+        )
+
+    if not contents.startswith(b"%PDF-"):
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid PDF file."
+        )
+
+    # 3. Extract text using PyMuPDF
+    try:
+        pdf = fitz.open(stream=contents, filetype="pdf")
+
+        if pdf.is_encrypted:
+            pdf.close()
+            raise HTTPException(
+                status_code=400,
+                detail="Password-protected PDFs are not supported."
+            )
+
+        if len(pdf) > 1000:
+            pdf.close()
+            raise HTTPException(
+                status_code=400,
+                detail="PDF exceeds the 1000-page limit."
+            )
+
+        page_count = len(pdf)
+        text = " ".join(page.get_text() for page in pdf)
+        pdf.close()
+
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(
+            status_code=400,
+            detail="Unable to process PDF."
+        )
+
+    # 4. Clean extracted text
+    text = re.sub(r"-\s*\n(?=[a-z])", "", text)
+    text = re.sub(r"\s+", " ", text).strip()
+
+    if len(text.split()) < 30:
+        raise HTTPException(
+            status_code=422,
+            detail="Insufficient readable text. PDF may be scanned."
+        )
+
+    # 5. Generate unique filing ID
+    filing_id = "uploaded_" + uuid.uuid4().hex[:12]
+
+    # 6. Save original PDF
+    pdf_path = UPLOAD_DIR / f"{filing_id}.pdf"
+    pdf_path.write_bytes(contents)
+
+    # 7. Save extracted text in data/
+    text_path = DATA_DIR / f"{filing_id}.txt"
+    text_path.write_text(text, encoding="utf-8")
+
+    # 8. Return upload information
+    return {
+        "message": "PDF uploaded successfully!",
+        "filing_name": filing_id,
+        "filename": file.filename,
+        "pages": page_count,
+        "word_count": len(text.split()),
+        "status": "ready"
+    }
+
 
 @app.get("/filings")
 def list_filings():

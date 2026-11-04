@@ -2,3 +2,6 @@ transformers==5.20.2
 fastapi==0.162.0
 uvicorn==0.54.0
 pydantic==2.14.2
+python-multipart
+PyMuPDF
+python-multipart
