@@ -92,11 +92,46 @@ def clean_summary(text):
     result = " ".join(out)
     return result if len(result.split()) >= 5 else ""
 
-def summarize(text, answer=None):
-    text = " ".join(focus_text(text, answer).split()[:200])
-    raw = _generate(f"Summarize the following text in one or two sentences.\n\n{text}", 80,
-                    num_beams=4, no_repeat_ngram_size=3, repetition_penalty=1.3, early_stopping=True)
-    return clean_summary(raw)
+def _answer_sentence(passage, answer):
+    """Only the sentence that contains the answer, e.g. 'Net income was $30.5 billion, or ...'"""
+    for s in re.split(r"(?<=[.!?])\s+(?=[A-Z(])", passage):
+        if answer and answer in s:
+            return s.strip()
+    return None
+
+def summarize(text, answer=None, question=None):
+    """One clear sentence that states the answer.
+    If FLAN-T5's output is vague or contains a number that is not in the filing,
+    the filing's own sentence is returned instead."""
+    key = _answer_sentence(text, answer)
+
+    # No answer to anchor on (e.g. the executive-summary demo): keep the old behaviour
+    if key is None:
+        text = " ".join(focus_text(text, answer).split()[:200])
+        raw = _generate(f"Summarize the following text in one or two sentences.\n\n{text}", 80,
+                        num_beams=4, no_repeat_ngram_size=3, repetition_penalty=1.3, early_stopping=True)
+        return clean_summary(raw)
+
+    # Ask a specific question about ONE sentence instead of "summarize this"
+    if question:
+        prompt = (f"Answer the question in one complete sentence using the text.\n\n"
+                  f"Question: {question}\nText: {key}\nAnswer:")
+    else:
+        prompt = (f"Rewrite this sentence as one short, clear sentence that keeps the figure {answer}.\n\n"
+                  f"Sentence: {key}")
+    raw = clean_summary(_generate(prompt, 60, num_beams=4, no_repeat_ngram_size=3, early_stopping=True))
+
+    # Accept it only if it states the answer's number and invents no new numbers
+    answer_nums = numbers_in(answer)
+    ok = (raw
+          and answer_nums & numbers_in(raw)
+          and numbers_in(raw) <= numbers_in(key))
+    if ok:
+        return raw
+
+    # Fallback: the filing's own sentence (trimmed if very long). Always accurate, never vague
+    words = key.split()
+    return key if len(words) <= 45 else " ".join(words[:45]) + " …"
 
 # ---------- Evaluation ----------
 def judge(answer, gold, context):

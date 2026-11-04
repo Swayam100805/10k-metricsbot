@@ -1,834 +1,534 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>10K-MetricsBot</title>
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
 <style>
+/* ---------- Tokens ---------- */
 :root {
-  --bg:#f5f6f8; --card:#fff; --text:#1a1d23;
-  --muted:#667085; --line:#e3e6ec;
-  --accent:#2457d6; --accent-soft:#e8eefc;
-  --ok:#137a4b; --ok-soft:#e3f5ec;
-  --warn:#8a5a00; --warn-soft:#fff4d6;
-  --err:#b3261e; --err-soft:#fde8e6;
-  --mark:#ffe58a;
-  --c0:#d9534f; --c1:#2f80ed;
-  --c2:#f2994a; --c3:#27ae60;
+  --ink: #13233a;          /* headings, primary text */
+  --ink-2: #4a5a70;        /* secondary text */
+  --ink-3: #7b8799;        /* hints */
+  --page: #eef1f4;         /* app background */
+  --sheet: #ffffff;        /* panels */
+  --paper: #fdfdfb;        /* the filing text */
+  --rule: #d9dfe6;         /* borders */
+  --blue: #1b4f9c;         /* actions */
+  --blue-soft: #e6edf8;
+  --highlight: #ffe45c;    /* the highlighter */
+  --ok: #17784a;  --ok-soft: #e2f3ea;
+  --mid: #8a5a00; --mid-soft: #fff1cc;
+  --bad: #b3261e; --bad-soft: #fbe7e5;
+  --credit: #c2453d; --liquidity: #2f6fd6; --operational: #d9822b; --growth: #2c9a5a;
+  --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
-
-@media(prefers-color-scheme:dark) {
+@media (prefers-color-scheme: dark) {
   :root {
-    --bg:#0f1218; --card:#181c25; --text:#e8eaf0;
-    --muted:#98a1b3; --line:#2a303d;
-    --accent:#7aa2ff; --accent-soft:#1d2a4a;
-    --ok:#5fd39a; --ok-soft:#12301f;
-    --warn:#f3c969; --warn-soft:#33290f;
-    --err:#ff8a80; --err-soft:#3a1714;
-    --mark:#6b5a12;
+    --ink: #e7ecf3; --ink-2: #aab5c4; --ink-3: #7f8a9b;
+    --page: #0e141c; --sheet: #16202b; --paper: #1b2633; --rule: #2a3645;
+    --blue: #7ea6ff; --blue-soft: #1c2b45;
+    --highlight: #7a6512;
+    --ok: #63d39b; --ok-soft: #133224; --mid: #f0c766; --mid-soft: #33290f; --bad: #ff8c82; --bad-soft: #3a1714;
   }
 }
 
-* {box-sizing:border-box}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.55 var(--sans); }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.hidden { display: none !important; }
 
-body {
-  margin:0;
-  background:var(--bg);
-  color:var(--text);
-  font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;
+/* ---------- Layout ---------- */
+.app { max-width: 1180px; margin: 0 auto; padding: 28px 20px 64px; }
+.top { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
+.brand h1 { margin: 0; font-size: 26px; letter-spacing: -0.01em; }
+.brand p { margin: 2px 0 0; color: var(--ink-2); max-width: 60ch; }
+
+.tabs { display: inline-flex; background: var(--sheet); border: 1px solid var(--rule); border-radius: 10px; padding: 3px; }
+.tab { border: 0; background: none; padding: 7px 16px; border-radius: 7px; cursor: pointer; color: var(--ink-2); font-weight: 500; }
+.tab[aria-selected="true"] { background: var(--ink); color: var(--sheet); }
+
+.grid { display: grid; grid-template-columns: 370px 1fr; gap: 22px; align-items: start; }
+.controls { position: sticky; top: 20px; }
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } .controls { position: static; } }
+
+.panel { background: var(--sheet); border: 1px solid var(--rule); border-radius: 12px; padding: 20px; }
+.panel + .panel { margin-top: 16px; }
+.field { margin-bottom: 18px; }
+.field:last-child { margin-bottom: 0; }
+label, .label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+.hint { color: var(--ink-3); font-size: 13px; margin: 6px 0 0; }
+
+select, input[type=text], textarea {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--rule); border-radius: 8px; background: var(--page);
 }
+textarea { min-height: 110px; resize: vertical; }
 
-.wrap {
-  max-width:860px;
-  margin:0 auto;
-  padding:28px 18px 60px;
+/* Upload drop zone */
+.drop {
+  border: 1.5px dashed var(--rule); border-radius: 10px; padding: 16px; text-align: center; cursor: pointer;
+  color: var(--ink-2); font-size: 14px; transition: border-color .15s, background .15s;
 }
+.drop:hover, .drop.over { border-color: var(--blue); background: var(--blue-soft); }
+.drop strong { color: var(--blue); }
+.progress { height: 4px; background: var(--rule); border-radius: 4px; overflow: hidden; margin-top: 10px; }
+.progress > div { height: 100%; width: 0; background: var(--blue); transition: width .2s; }
+.status { font-size: 13px; margin-top: 8px; }
+.status.ok { color: var(--ok); } .status.bad { color: var(--bad); }
 
-header h1 {
-  margin:0;
-  font-size:28px;
-}
-
-header p {color:var(--muted)}
-
-.tabs {
-  display:flex;
-  gap:8px;
-  margin:22px 0 14px;
-}
-
-.tab {
-  padding:9px 17px;
-  border:1px solid var(--line);
-  background:var(--card);
-  color:var(--muted);
-  border-radius:999px;
-  cursor:pointer;
-  font:inherit;
-}
-
-.tab.active {
-  background:var(--accent);
-  color:white;
-}
-
-.card {
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:14px;
-  padding:18px;
-  margin-bottom:16px;
-}
-
-label {
-  display:block;
-  font-weight:600;
-  margin-bottom:7px;
-}
-
-select,textarea,input[type=text] {
-  width:100%;
-  padding:11px 12px;
-  border:1px solid var(--line);
-  border-radius:10px;
-  background:var(--bg);
-  color:var(--text);
-  font:inherit;
-}
-
-textarea {
-  resize:vertical;
-  min-height:90px;
-}
-
-.row {margin-bottom:16px}
-
-.upload-box {
-  border:2px dashed var(--line);
-  border-radius:12px;
-  padding:20px;
-  background:var(--bg);
-  text-align:center;
-}
-
-.upload-box input {
-  display:block;
-  width:100%;
-  margin:12px 0;
-}
-
-.upload-icon {
-  font-size:35px;
-  margin-bottom:8px;
-}
-
-.upload-status {
-  margin-top:12px;
-  font-size:13px;
-  color:var(--muted);
-}
-
-.success {color:var(--ok)}
-.error {color:var(--err)}
-
-.go {
-  background:var(--accent);
-  color:white;
-  border:0;
-  padding:11px 22px;
-  border-radius:10px;
-  font:inherit;
-  font-weight:600;
-  cursor:pointer;
-}
-
-.go:disabled {
-  opacity:.6;
-  cursor:wait;
-}
-
-.hidden {display:none!important}
-
-.err {
-  background:var(--err-soft);
-  color:var(--err);
-  border-radius:10px;
-  padding:12px;
-  margin-top:14px;
-}
-
-.chips {
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  margin-top:8px;
-}
-
+.chips { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
 .chip {
-  border:1px solid var(--line);
-  background:var(--accent-soft);
-  color:var(--accent);
-  padding:5px 11px;
-  border-radius:999px;
-  cursor:pointer;
-  font-size:13px;
+  text-align: left; border: 1px solid var(--rule); background: none; border-radius: 8px; padding: 7px 10px;
+  font-size: 13.5px; color: var(--ink-2); cursor: pointer;
 }
+.chip:hover { border-color: var(--blue); color: var(--blue); }
 
-.answer-label {
-  color:var(--muted);
-  font-size:13px;
-  text-transform:uppercase;
+.btn {
+  width: 100%; border: 0; border-radius: 8px; padding: 11px 18px; font-weight: 600; cursor: pointer;
+  background: var(--blue); color: #fff; display: inline-flex; justify-content: center; align-items: center; gap: 8px;
 }
+.btn.secondary { background: var(--blue-soft); color: var(--blue); }
+.btn:disabled { opacity: .65; cursor: progress; }
+.spinner { width: 14px; height: 14px; border: 2px solid #ffffff66; border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-.answer-big {
-  font-size:38px;
-  font-weight:700;
-  margin:3px 0 6px;
+.error { background: var(--bad-soft); color: var(--bad); border-radius: 8px; padding: 10px 12px; margin-top: 12px; font-size: 14px; }
+
+/* ---------- Results ---------- */
+.empty { border: 1px dashed var(--rule); border-radius: 12px; padding: 48px 28px; color: var(--ink-2); text-align: center; }
+.empty h2 { color: var(--ink); font-size: 18px; margin: 0 0 6px; }
+
+.answer-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.question-echo { color: var(--ink-2); margin: 0 0 4px; }
+.answer { font-size: 44px; font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; margin: 2px 0 12px; word-break: break-word; }
+.copy { border: 1px solid var(--rule); background: none; border-radius: 8px; padding: 6px 10px; font-size: 13px; cursor: pointer; color: var(--ink-2); white-space: nowrap; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill { font-size: 13px; font-weight: 500; padding: 4px 10px; border-radius: 999px; }
+.pill.ok { background: var(--ok-soft); color: var(--ok); }
+.pill.mid { background: var(--mid-soft); color: var(--mid); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.pill.plain { background: var(--page); color: var(--ink-2); }
+.raw { color: var(--ink-3); font-size: 13px; margin-top: 10px; }
+
+/* The filing page: the one memorable element */
+.sheet-title { font-weight: 600; font-size: 14px; margin: 0 0 10px; display: flex; justify-content: space-between; color: var(--ink-2); }
+.filing {
+  font-family: var(--serif); font-size: 17px; line-height: 1.75; background: var(--paper);
+  border: 1px solid var(--rule); border-left: 4px solid var(--ink); border-radius: 4px 10px 10px 4px;
+  padding: 18px 22px;
 }
-
-.badge {
-  display:inline-block;
-  padding:3px 10px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:600;
-  margin-right:6px;
+.filing mark {
+  color: inherit; padding: 0 2px; border-radius: 2px;
+  background: linear-gradient(var(--highlight), var(--highlight)) no-repeat 0 60% / 100% 80%;
+  animation: sweep .7s .15s cubic-bezier(.3,.7,.3,1) both;
 }
+@keyframes sweep { from { background-size: 0% 80%; } to { background-size: 100% 80%; } }
 
-.badge.ok {
-  background:var(--ok-soft);
-  color:var(--ok);
-}
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+@media (max-width: 700px) { .two { grid-template-columns: 1fr; } }
+.two .panel + .panel { margin-top: 0; }
 
-.badge.warn {
-  background:var(--warn-soft);
-  color:var(--warn);
-}
+.bar-row { display: grid; grid-template-columns: 128px 1fr 48px; gap: 10px; align-items: center; margin: 8px 0; font-size: 14px; }
+.bar-row.top .name { font-weight: 700; }
+.bar { height: 8px; background: var(--page); border-radius: 8px; overflow: hidden; }
+.bar > div { height: 100%; border-radius: 8px; }
+.pct { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.verdict { margin: 0 0 6px; }
+.note { background: var(--mid-soft); color: var(--mid); border-radius: 8px; padding: 8px 10px; font-size: 13px; margin-top: 10px; }
 
-.raw {
-  color:var(--muted);
-  font-size:13px;
-  margin-top:6px;
-  word-break:break-word;
-}
+.summary { font-family: var(--serif); font-size: 16px; line-height: 1.65; margin: 0; }
+.summary .unsupported { text-decoration: underline wavy var(--bad); text-underline-offset: 3px; }
 
-h3 {
-  margin:0 0 10px;
-  font-size:14px;
-  text-transform:uppercase;
-  color:var(--muted);
-}
-
-.passage {
-  background:var(--bg);
-  border:1px solid var(--line);
-  border-radius:10px;
-  padding:12px;
-  font-size:14px;
-  word-break:break-word;
-}
-
-mark {
-  background:var(--mark);
-  padding:1px 3px;
-  border-radius:4px;
-}
-
-.bar-row {
-  display:grid;
-  grid-template-columns:140px 1fr 52px;
-  gap:10px;
-  align-items:center;
-  margin:7px 0;
-  font-size:14px;
-}
-
-.bar {
-  height:10px;
-  background:var(--bg);
-  border:1px solid var(--line);
-  border-radius:999px;
-  overflow:hidden;
-}
-
-.bar>div {
-  height:100%;
-  border-radius:999px;
-}
-
-.bar-row.top .name {font-weight:700}
-
-.note {
-  color:var(--warn);
-  background:var(--warn-soft);
-  border-radius:10px;
-  padding:10px 12px;
-  font-size:13px;
-}
-
-.small {
-  font-size:12.5px;
-  color:var(--muted);
-}
-
-.spinner {
-  display:inline-block;
-  width:14px;
-  height:14px;
-  border:2px solid #ffffff55;
-  border-top-color:white;
-  border-radius:50%;
-  animation:spin .7s linear infinite;
-  margin-right:8px;
-}
-
-@keyframes spin {
-  to {transform:rotate(360deg)}
-}
-
-@media(max-width:560px) {
-  .bar-row {grid-template-columns:100px 1fr 46px}
-  .answer-big {font-size:30px}
+@media (prefers-reduced-motion: reduce) { .filing mark { animation: none; } .spinner { animation-duration: 2s; } }
+@media (max-width: 520px) { .answer { font-size: 34px; } .bar-row { grid-template-columns: 100px 1fr 44px; } }
+@media (prefers-color-scheme: dark) {
+  .btn { color: #0e141c; }
+  .spinner { border-color: #0e141c44; border-top-color: #0e141c; }
 }
 </style>
 </head>
-
 <body>
-<div class="wrap">
+<div class="app">
 
-<header>
-  <h1>10K-MetricsBot</h1>
-  <p>Ask numeric questions about SEC 10-K filings. Answers are extracted directly from the source document.</p>
-</header>
-
-<div class="tabs">
-  <button class="tab active" id="tab-ask" type="button">
-    Ask a filing
-  </button>
-  <button class="tab" id="tab-risk" type="button">
-    Classify risk
-  </button>
-</div>
-
-<!-- ASK TAB -->
-<section id="panel-ask">
-
-  <div class="card">
-
-    <!-- FILING SELECTOR -->
-    <div class="row">
-      <label for="filing">Select Filing</label>
-      <select id="filing"></select>
+  <header class="top">
+    <div class="brand">
+      <h1>10K-MetricsBot</h1>
+      <p>Ask for a figure from an SEC 10-K filing. The answer is copied from the filing and shown in its original passage.</p>
     </div>
+    <div class="tabs" role="tablist" aria-label="Mode">
+      <button class="tab" role="tab" id="tab-ask" aria-selected="true" aria-controls="panel-ask">Ask a filing</button>
+      <button class="tab" role="tab" id="tab-risk" aria-selected="false" aria-controls="panel-risk">Classify risk</button>
+    </div>
+  </header>
 
-    <!-- PDF UPLOAD -->
-    <div class="row">
-      <label>Upload Your Own 10-K Filing</label>
-
-      <div class="upload-box">
-
-        <div class="upload-icon">📄</div>
-
-        <strong>Upload Financial Report</strong>
-
-        <p class="small">
-          Select a PDF document from your computer.
-          Maximum size: 25 MB.
-        </p>
-
-        <input
-          type="file"
-          id="pdf-file"
-          accept=".pdf,application/pdf"
-        >
-
-        <button class="go" id="upload-btn" type="button">
-          Upload and Process PDF
-        </button>
-
-        <div
-          id="upload-status"
-          class="upload-status"
-          aria-live="polite">
+  <!-- ===================== ASK ===================== -->
+  <section id="panel-ask" role="tabpanel" aria-labelledby="tab-ask" class="grid">
+    <div class="controls">
+      <div class="panel">
+        <div class="field">
+          <label for="filing">Filing</label>
+          <select id="filing"></select>
         </div>
 
+        <div class="field" id="paste-row" hidden>
+          <label for="filing-text">Filing text</label>
+          <textarea id="filing-text" placeholder="Paste a section of a 10-K here"></textarea>
+        </div>
+
+        <div class="field">
+          <span class="label">Or upload a 10-K PDF</span>
+          <div class="drop" id="drop" tabindex="0" role="button" aria-describedby="upload-status">
+            Drop a PDF here or <strong>choose a file</strong><br>
+            <span class="hint">Up to 25 MB</span>
+          </div>
+          <input type="file" id="pdf-file" accept=".pdf,application/pdf" hidden>
+          <div class="progress hidden" id="progress"><div></div></div>
+          <div class="status" id="upload-status" aria-live="polite"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="field">
+          <label for="question">Question</label>
+          <input type="text" id="question" placeholder="e.g. What was net income in 2025?" autocomplete="off">
+          <div class="chips" id="chips"></div>
+        </div>
+        <button class="btn" id="ask-btn">Ask question</button>
+        <div class="error hidden" id="ask-err" role="alert"></div>
       </div>
     </div>
 
-    <!-- PASTE TEXT -->
-    <div class="row hidden" id="paste-row">
-      <label for="filing-text">Paste Filing Text</label>
-      <textarea
-        id="filing-text"
-        placeholder="Paste filing text here...">
-      </textarea>
+    <div id="results">
+      <div class="empty" id="empty">
+        <h2>No question asked yet</h2>
+        Pick a filing, then ask a question or tap one of the examples.
+        The answer will appear here with the passage it came from.
+      </div>
+
+      <div id="result" class="hidden">
+        <div class="panel">
+          <div class="answer-head">
+            <p class="question-echo" id="r-question"></p>
+            <button class="copy" id="copy-btn">Copy answer</button>
+          </div>
+          <div class="answer" id="r-answer"></div>
+          <div class="facts">
+            <span class="pill" id="r-found"></span>
+            <span class="pill" id="r-conf"></span>
+            <span class="pill plain" id="r-time"></span>
+          </div>
+          <div class="raw" id="r-raw"></div>
+        </div>
+
+        <div class="panel">
+          <p class="sheet-title"><span>Source passage</span><span id="r-filing"></span></p>
+          <div class="filing" id="r-passage"></div>
+        </div>
+
+        <div class="two">
+          <div class="panel">
+            <p class="sheet-title"><span>Risk type of this passage</span></p>
+            <div id="r-risk"></div>
+          </div>
+          <div class="panel">
+            <p class="sheet-title"><span>Plain-English summary</span></p>
+            <p class="summary" id="r-summary"></p>
+            <p class="hint" id="r-summary-note">Written by FLAN-T5-small. The answer above never comes from this summary.</p>
+          </div>
+        </div>
+      </div>
     </div>
+  </section>
 
-    <!-- QUESTION -->
-    <div class="row">
-      <label for="question">Ask a Financial Question</label>
-
-      <input
-        type="text"
-        id="question"
-        placeholder="e.g. What was the company's total revenue?">
-
-      <div class="chips" id="chips"></div>
+  <!-- ===================== RISK ===================== -->
+  <section id="panel-risk" role="tabpanel" aria-labelledby="tab-risk" class="grid hidden">
+    <div class="controls">
+      <div class="panel">
+        <div class="field">
+          <label for="risk-text">Sentence from a filing</label>
+          <textarea id="risk-text" placeholder="Paste one sentence, e.g. about loans, funding, systems or growth"></textarea>
+          <p class="hint">Ctrl + Enter to classify</p>
+          <div class="chips" id="risk-chips"></div>
+        </div>
+        <button class="btn" id="risk-btn">Classify risk</button>
+        <div class="error hidden" id="risk-err" role="alert"></div>
+      </div>
     </div>
-
-    <button class="go" id="ask-btn" type="button">
-      Ask Question
-    </button>
-
-    <div class="err hidden" id="ask-err"></div>
-
-  </div>
-
-  <!-- ANSWER RESULTS -->
-  <div id="result" class="hidden">
-
-    <div class="card">
-      <div class="answer-label">Extracted Answer</div>
-      <div class="answer-big" id="r-answer"></div>
-
-      <span class="badge ok">Exact text from filing</span>
-      <span class="badge warn" id="r-conf"></span>
-
-      <div class="raw" id="r-raw"></div>
+    <div>
+      <div class="empty" id="risk-empty">
+        <h2>Nothing classified yet</h2>
+        The model sorts a sentence into Credit, Liquidity, Operational Risk or Market Growth.
+      </div>
+      <div class="panel hidden" id="risk-result">
+        <p class="sheet-title"><span>Predicted category</span></p>
+        <div class="filing" id="risk-sentence" style="margin-bottom:16px"></div>
+        <div id="risk-out"></div>
+      </div>
     </div>
-
-    <div class="card">
-      <h3>Source Passage</h3>
-      <div class="passage" id="r-passage"></div>
-      <p class="small">
-        Verify the extracted answer against the original filing.
-      </p>
-    </div>
-
-    <div class="card">
-      <h3>Risk Classification</h3>
-      <div id="r-risk"></div>
-    </div>
-
-    <div class="card">
-      <h3>AI-Generated Summary</h3>
-      <div id="r-summary"></div>
-      <p class="small">
-        Summary generated using FLAN-T5-small.
-        Verify all financial figures against the source.
-      </p>
-    </div>
-
-  </div>
-
-</section>
-
-<!-- RISK TAB -->
-<section id="panel-risk" class="hidden">
-
-  <div class="card">
-
-    <div class="row">
-      <label for="risk-text">Enter a Sentence from a Filing</label>
-
-      <textarea
-        id="risk-text"
-        placeholder="Enter a financial risk statement...">
-      </textarea>
-    </div>
-
-    <button class="go" id="risk-btn" type="button">
-      Classify Risk
-    </button>
-
-    <div class="err hidden" id="risk-err"></div>
-
-  </div>
-
-  <div class="card hidden" id="risk-result">
-    <h3>Predicted Risk Category</h3>
-    <div id="risk-out"></div>
-  </div>
-
-</section>
-
+  </section>
 </div>
 
 <script>
-
 const $ = id => document.getElementById(id);
 
 const COLORS = {
-  "Credit Risk":"var(--c0)",
-  "Liquidity Risk":"var(--c1)",
-  "Operational Risk":"var(--c2)",
-  "Market Growth":"var(--c3)"
+  "Credit Risk": "var(--credit)", "Liquidity Risk": "var(--liquidity)",
+  "Operational Risk": "var(--operational)", "Market Growth": "var(--growth)"
 };
 
-const EXAMPLES = {
-  tech_10k: [
-    "What were Apple's total net sales in fiscal 2025?",
-    "How many full-time equivalent employees did Apple have?",
-    "How much did Apple spend repurchasing its common stock?"
-  ],
+// Example questions, chosen by words in the filing name (works for uploaded files too)
+const EXAMPLES = [
+  { match: /bank|bac/i, qs: ["What was Bank of America's net income in 2025?", "How many employees did Bank of America have?", "How many hours of training did Bank of America deliver?"] },
+  { match: /tech|apple|aapl/i, qs: ["What were Apple's total net sales in fiscal 2025?", "How many full-time equivalent employees did Apple have?", "How much did Apple spend repurchasing its common stock?"] },
+  { match: /.*/, qs: ["What was net income for the year?", "What were total revenues?", "How many employees did the company have?"] }
+];
+const RISK_EXAMPLES = [
+  "An increase in borrower defaults could raise our provision for credit losses.",
+  "We rely on deposits and short-term borrowings to fund our operations.",
+  "A cyberattack on our systems could disrupt services and harm our reputation."
+];
 
-  bank_10k: [
-    "What was Bank of America's net income in 2025?",
-    "How many employees did Bank of America have?",
-    "How many hours of training did Bank of America deliver?"
-  ]
-};
+const NUM = /\d[\d,]*(?:\.\d+)?/g;
+const numbersIn = s => new Set((String(s).match(NUM) || []).map(n => n.replace(/,/g, "").replace(/\.$/, "")));
 
 function esc(s) {
-  return String(s)
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;");
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
-async function api(path,body) {
-
-  const res = await fetch(path,{
-    method:body ? "POST":"GET",
-    headers:{"Content-Type":"application/json"},
-    body:body ? JSON.stringify(body):undefined
+async function api(path, body) {
+  const res = await fetch(path, {
+    method: body ? "POST" : "GET",
+    headers: { "Content-Type": "application/json" },
+    body: body ? JSON.stringify(body) : undefined
   });
-
-  let data={};
-
-  try {
-    data=await res.json();
-  } catch(e) {}
-
-  if(!res.ok) {
-    throw new Error(
-      data.detail || "Request failed: "+res.status
-    );
-  }
-
+  let data = {};
+  try { data = await res.json(); } catch (e) {}
+  if (!res.ok) throw new Error(typeof data.detail === "string" ? data.detail : "The server returned an error (" + res.status + ").");
   return data;
 }
 
-function setBusy(btn,busy,label) {
-  btn.disabled=busy;
-  btn.innerHTML=busy
-    ? '<span class="spinner"></span>Working...'
-    : label;
+function setBusy(btn, busy, label, busyLabel) {
+  btn.disabled = busy;
+  btn.innerHTML = busy ? '<span class="spinner"></span>' + busyLabel : label;
 }
+function showErr(id, msg) { $(id).textContent = msg || ""; $(id).classList.toggle("hidden", !msg); }
 
-function showErr(id,msg) {
-  const el=$(id);
-  el.textContent=msg;
-  el.classList.toggle("hidden",!msg);
-}
-
-function bars(scores,topLabel) {
-
-  return Object.entries(scores)
-    .sort((a,b)=>b[1]-a[1])
-    .map(([name,p])=>
-      '<div class="bar-row'+
-      (name===topLabel?" top":"")+
-      '"><span class="name">'+esc(name)+
-      '</span><div class="bar"><div style="width:'+
-      (p*100).toFixed(1)+'%;background:'+
-      (COLORS[name]||"var(--accent)")+
-      '"></div></div><span>'+
-      (p*100).toFixed(1)+'%</span></div>'
-    ).join("");
-}
-
-function highlight(passage,answer) {
-
-  const i=passage.indexOf(answer);
-
-  if(i<0) return esc(passage);
-
-  return esc(passage.slice(0,i))+
-    "<mark>"+esc(answer)+"</mark>"+
-    esc(passage.slice(i+answer.length));
-}
-
-function headline(answer) {
-  const m=answer.match(
-    /\(?\$?\s?\d[\d,]*(?:\.\d+)?\)?\s?(?:%|percent|billion|million|thousand|bps)?/i
-  );
-  return m ? m[0].trim():answer;
-}
-
-/* TABS */
-
+/* ---------- Tabs ---------- */
 function showTab(which) {
-
-  $("panel-ask").classList.toggle("hidden",which!=="ask");
-  $("panel-risk").classList.toggle("hidden",which!=="risk");
-
-  $("tab-ask").classList.toggle("active",which==="ask");
-  $("tab-risk").classList.toggle("active",which==="risk");
-}
-
-$("tab-ask").onclick=()=>showTab("ask");
-$("tab-risk").onclick=()=>showTab("risk");
-
-/* FILING LIST */
-
-function renderChips() {
-
-  const name=$("filing").value;
-
-  $("chips").innerHTML=(EXAMPLES[name]||[])
-    .map(q=>'<span class="chip">'+esc(q)+'</span>')
-    .join("");
-
-  document.querySelectorAll(".chip").forEach(c=>{
-    c.onclick=()=>{
-      $("question").value=c.textContent;
-      $("question").focus();
-    };
+  ["ask", "risk"].forEach(t => {
+    $("panel-" + t).classList.toggle("hidden", t !== which);
+    $("tab-" + t).setAttribute("aria-selected", String(t === which));
   });
 }
+$("tab-ask").onclick = () => showTab("ask");
+$("tab-risk").onclick = () => showTab("risk");
 
-$("filing").onchange=()=>{
+/* ---------- Filings & example chips ---------- */
+function chipList(el, questions, target) {
+  el.innerHTML = questions.map(q => '<button type="button" class="chip">' + esc(q) + "</button>").join("");
+  el.querySelectorAll(".chip").forEach(c => c.onclick = () => { $(target).value = c.textContent; $(target).focus(); });
+}
+function renderChips() {
+  const name = $("filing").value;
+  chipList($("chips"), EXAMPLES.find(e => e.match.test(name)).qs, "question");
+}
+$("filing").onchange = () => { $("paste-row").hidden = $("filing").value !== "__paste__"; renderChips(); };
 
-  $("paste-row").classList.toggle(
-    "hidden",
-    $("filing").value!=="__paste__"
-  );
-
+async function loadFilings(select) {
+  let names = [];
+  try { names = (await api("/filings")).filings || []; }
+  catch (e) { showErr("ask-err", "Could not load the list of filings. Is the server running? " + e.message); }
+  $("filing").innerHTML = names.map(n => '<option value="' + esc(n) + '">' + esc(n) + "</option>").join("")
+    + '<option value="__paste__">Paste my own text</option>';
+  if (select && names.includes(select)) $("filing").value = select;
+  $("paste-row").hidden = $("filing").value !== "__paste__";
   renderChips();
+}
+
+/* ---------- Upload (drag & drop + progress) ---------- */
+const drop = $("drop"), fileInput = $("pdf-file");
+drop.onclick = () => fileInput.click();
+drop.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileInput.click(); } };
+["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => { if (e.dataTransfer.files[0]) uploadFiling(e.dataTransfer.files[0]); });
+fileInput.onchange = () => { if (fileInput.files[0]) uploadFiling(fileInput.files[0]); };
+
+function setStatus(text, kind) { const s = $("upload-status"); s.textContent = text; s.className = "status " + (kind || ""); }
+
+function uploadFiling(file) {
+  if (!/\.pdf$/i.test(file.name)) return setStatus("Only PDF files can be uploaded.", "bad");
+  if (file.size > 25 * 1024 * 1024) return setStatus("This file is over 25 MB. Choose a smaller PDF.", "bad");
+
+  const bar = $("progress"), fill = bar.firstElementChild;
+  bar.classList.remove("hidden"); fill.style.width = "0%";
+  setStatus("Uploading " + file.name + "…");
+
+  const form = new FormData();
+  form.append("file", file);
+  const xhr = new XMLHttpRequest();            // XHR instead of fetch so we can show upload progress
+  xhr.open("POST", "/upload-filing");
+  xhr.upload.onprogress = e => {
+    if (!e.lengthComputable) return;
+    const pct = Math.round(e.loaded / e.total * 100);
+    fill.style.width = pct + "%";
+    if (pct === 100) setStatus("Reading the PDF and building the search index…");
+  };
+  xhr.onload = async () => {
+    bar.classList.add("hidden");
+    let data = {};
+    try { data = JSON.parse(xhr.responseText); } catch (e) {}
+    if (xhr.status >= 400) return setStatus("Upload failed: " + (data.detail || xhr.status), "bad");
+    await loadFilings(data.filing_name);
+    setStatus(data.filename + " is ready: " + data.pages + " pages, " + Number(data.word_count).toLocaleString() + " words.", "ok");
+    $("question").focus();
+  };
+  xhr.onerror = () => { bar.classList.add("hidden"); setStatus("Upload failed: the server could not be reached.", "bad"); };
+  xhr.send(form);
+}
+
+/* ---------- Answer helpers ---------- */
+function headline(answer) {
+  // Prefer a money/percent figure; fall back to the first number; then to the raw text
+  const money = answer.match(/\(?\$\s?\d[\d,]*(?:\.\d+)?\)?(?:\s?(?:billion|million|thousand))?/i);
+  const other = answer.match(/\d[\d,]*(?:\.\d+)?\s?(?:%|percent|billion|million|thousand|bps)?/i);
+  return (money || other || [answer])[0].trim();
+}
+function highlight(passage, answer) {
+  let i = passage.indexOf(answer);
+  if (i < 0) i = passage.toLowerCase().indexOf(answer.toLowerCase());
+  if (i < 0 || !answer) return esc(passage);
+  return esc(passage.slice(0, i)) + "<mark>" + esc(passage.slice(i, i + answer.length)) + "</mark>" + esc(passage.slice(i + answer.length));
+}
+function confidencePill(c) {
+  const level = c >= 0.6 ? ["ok", "High"] : c >= 0.3 ? ["mid", "Medium"] : ["bad", "Low"];
+  const el = $("r-conf");
+  el.className = "pill " + level[0];
+  el.textContent = level[1] + " confidence (" + c.toFixed(2) + ")";
+}
+// Flag numbers in the AI summary that do not appear in the source passage
+function checkedSummary(summary, passage) {
+  const allowed = numbersIn(passage);
+  let flagged = 0;
+  const html = esc(summary).replace(NUM, n => {
+    const norm = n.replace(/,/g, "").replace(/\.$/, "");
+    if (allowed.has(norm)) return n;
+    flagged++;
+    return '<span class="unsupported" title="Not found in the source passage">' + n + "</span>";
+  });
+  return { html, flagged };
+}
+function bars(scores, top) {
+  return Object.entries(scores).sort((a, b) => b[1] - a[1]).map(([name, p]) =>
+    '<div class="bar-row' + (name === top ? " top" : "") + '"><span class="name">' + esc(name) + '</span>'
+    + '<div class="bar"><div style="width:' + (p * 100).toFixed(1) + "%;background:" + (COLORS[name] || "var(--blue)") + '"></div></div>'
+    + '<span class="pct">' + (p * 100).toFixed(1) + "%</span></div>").join("");
+}
+function riskBlock(category, scores) {
+  const top = Math.max(...Object.values(scores));
+  return '<p class="verdict">Most likely: <b>' + esc(category) + "</b></p>" + bars(scores, category)
+    + (top < 0.5 ? '<div class="note">The model is unsure: no category is above 50%. This text may not be about any of the four risk types.</div>' : "");
+}
+
+/* ---------- Ask ---------- */
+let asking = false;
+async function ask() {
+  if (asking) return;                          // stops double submits from Enter + click
+  showErr("ask-err", "");
+  const question = $("question").value.trim();
+  if (question.length < 5) return showErr("ask-err", "Type a question of at least 5 characters.");
+
+  const body = { question };
+  if ($("filing").value === "__paste__") {
+    body.filing_text = $("filing-text").value.trim();
+    if (!body.filing_text) return showErr("ask-err", "Paste some filing text, or choose a filing from the list.");
+  } else {
+    body.filing_name = $("filing").value;
+  }
+
+  asking = true;
+  setBusy($("ask-btn"), true, "Ask question", "Searching the filing…");
+  const t0 = performance.now();
+  try {
+    const d = await api("/query-filing", body);
+    const secs = ((performance.now() - t0) / 1000).toFixed(1);
+    const inPassage = d.source_passage.includes(d.answer);
+
+    $("r-question").textContent = question;
+    $("r-answer").textContent = headline(d.answer);
+    $("r-raw").textContent = "Extracted text: “" + d.answer + "”";
+    $("r-found").className = "pill " + (inPassage ? "ok" : "mid");
+    $("r-found").textContent = inPassage ? "Found word-for-word in the filing" : "Check against the filing";
+    confidencePill(d.confidence);
+    $("r-time").textContent = "Answered in " + secs + " s";
+    $("r-filing").textContent = body.filing_name || "pasted text";
+    $("r-passage").innerHTML = highlight(d.source_passage, d.answer);
+
+    $("r-risk").innerHTML = d.risk_scores ? riskBlock(d.risk_category, d.risk_scores)
+      : '<div class="note">' + esc(d.risk_note || "This passage was not classified.") + "</div>";
+
+    if (d.passage_summary) {
+      const s = checkedSummary(d.passage_summary, d.source_passage);
+      $("r-summary").innerHTML = s.html;
+      $("r-summary-note").textContent = s.flagged
+        ? s.flagged + " number(s) underlined in red are not in the source passage. The answer above never comes from this summary."
+        : "Written by FLAN-T5-small. Every number in it appears in the source passage.";
+    } else {
+      $("r-summary").textContent = "No summary was produced for this passage.";
+    }
+
+    $("empty").classList.add("hidden");
+    $("result").classList.remove("hidden");
+    // restart the highlighter animation for each new answer
+    const m = $("r-passage").querySelector("mark"); if (m) { m.style.animation = "none"; m.offsetWidth; m.style.animation = ""; }
+    if (window.innerWidth <= 900) $("result").scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (e) {
+    showErr("ask-err", e.message);
+  } finally {
+    asking = false;
+    setBusy($("ask-btn"), false, "Ask question");
+  }
+}
+$("ask-btn").onclick = ask;
+$("question").addEventListener("keydown", e => { if (e.key === "Enter") ask(); });
+
+$("copy-btn").onclick = async () => {
+  try { await navigator.clipboard.writeText($("r-answer").textContent); $("copy-btn").textContent = "Copied"; }
+  catch (e) { $("copy-btn").textContent = "Copy failed"; }
+  setTimeout(() => $("copy-btn").textContent = "Copy answer", 1500);
 };
 
-async function loadFilings(selectName=null) {
-
-  let names=[];
-
-  try {
-    names=(await api("/filings")).filings;
-  } catch(e) {
-    showErr("ask-err",e.message);
-  }
-
-  $("filing").innerHTML=
-    names.map(n=>
-      '<option value="'+esc(n)+'">'+esc(n)+'</option>'
-    ).join("")+
-    '<option value="__paste__">Paste my own text...</option>';
-
-  if(selectName && names.includes(selectName)) {
-    $("filing").value=selectName;
-    $("paste-row").classList.add("hidden");
-  }
-
-  renderChips();
-}
-
-/* PDF UPLOAD */
-
-async function uploadFiling() {
-
-  const input=$("pdf-file");
-  const status=$("upload-status");
-  const btn=$("upload-btn");
-
-  status.className="upload-status";
-  status.textContent="";
-
-  const file=input.files[0];
-
-  if(!file) {
-    status.classList.add("error");
-    status.textContent="Please select a PDF file.";
-    return;
-  }
-
-  if(!file.name.toLowerCase().endsWith(".pdf")) {
-    status.classList.add("error");
-    status.textContent="Only PDF files are supported.";
-    return;
-  }
-
-  if(file.size>25*1024*1024) {
-    status.classList.add("error");
-    status.textContent="Maximum file size is 25 MB.";
-    return;
-  }
-
-  const formData=new FormData();
-
-  formData.append("file",file);
-
-  btn.disabled=true;
-  btn.innerHTML='<span class="spinner"></span>Uploading...';
-
-  try {
-
-    const response=await fetch("/upload-filing",{
-      method:"POST",
-      body:formData
-    });
-
-    let data={};
-
-    try {
-      data=await response.json();
-    } catch(e) {}
-
-    if(!response.ok) {
-      throw new Error(
-        data.detail || "Upload failed: "+response.status
-      );
-    }
-
-    await loadFilings(data.filing_name);
-
-    status.classList.add("success");
-
-    status.textContent=
-      "Successfully uploaded "+data.filename+
-      " | "+data.pages+" pages | "+
-      data.word_count.toLocaleString()+" words. "+
-      "Your filing is ready for questions.";
-
-    $("question").focus();
-
-  } catch(error) {
-
-    status.classList.add("error");
-    status.textContent="Upload error: "+error.message;
-
-  } finally {
-
-    btn.disabled=false;
-    btn.textContent="Upload and Process PDF";
-  }
-}
-
-$("upload-btn").onclick=uploadFiling;
-
-/* QUESTION ANSWERING */
-
-async function ask() {
-
-  showErr("ask-err","");
-
-  const question=$("question").value.trim();
-
-  if(question.length<5) {
-    return showErr("ask-err","Please enter a question.");
-  }
-
-  const body={question};
-
-  if($("filing").value==="__paste__") {
-
-    body.filing_text=$("filing-text").value.trim();
-
-    if(!body.filing_text) {
-      return showErr("ask-err","Please paste filing text.");
-    }
-
-  } else {
-
-    body.filing_name=$("filing").value;
-  }
-
-  setBusy($("ask-btn"),true,"Ask Question");
-
-  try {
-
-    const d=await api("/query-filing",body);
-
-    $("r-answer").textContent=headline(d.answer);
-
-    $("r-raw").textContent="Extracted text: "+d.answer;
-
-    $("r-conf").textContent=
-      "Confidence score "+d.confidence.toFixed(2);
-
-    $("r-passage").innerHTML=
-      highlight(d.source_passage,d.answer);
-
-    $("r-risk").innerHTML=d.risk_scores
-      ? "<p>Most likely: <b>"+
-        esc(d.risk_category)+"</b></p>"+
-        bars(d.risk_scores,d.risk_category)
-      : '<div class="note">'+
-        esc(d.risk_note||"Not classified.")+
-        "</div>";
-
-    $("r-summary").textContent=
-      d.passage_summary||"(no summary)";
-
-    $("result").classList.remove("hidden");
-
-    $("result").scrollIntoView({
-      behavior:"smooth",
-      block:"start"
-    });
-
-  } catch(e) {
-
-    $("result").classList.add("hidden");
-    showErr("ask-err",e.message);
-
-  } finally {
-
-    setBusy($("ask-btn"),false,"Ask Question");
-  }
-}
-
-$("ask-btn").onclick=ask;
-
-$("question").addEventListener("keydown",e=>{
-  if(e.key==="Enter") ask();
-});
-
-/* RISK CLASSIFICATION */
-
+/* ---------- Classify risk ---------- */
+chipList($("risk-chips"), RISK_EXAMPLES, "risk-text");
+let classifying = false;
 async function classify() {
-
-  showErr("risk-err","");
-
-  const text=$("risk-text").value.trim();
-
-  if(text.length<20) {
-    return showErr(
-      "risk-err",
-      "Please enter a longer sentence (at least 20 characters)."
-    );
-  }
-
-  setBusy($("risk-btn"),true,"Classify Risk");
-
+  if (classifying) return;
+  showErr("risk-err", "");
+  const text = $("risk-text").value.trim();
+  if (text.length < 20) return showErr("risk-err", "Enter a full sentence of at least 20 characters.");
+  classifying = true;
+  setBusy($("risk-btn"), true, "Classify risk", "Classifying…");
   try {
-
-    const d=await api("/classify-risk",{text});
-
-    $("risk-out").innerHTML=
-      "<p>Most likely: <b>"+
-      esc(d.risk_category)+"</b></p>"+
-      bars(d.scores,d.risk_category);
-
+    const d = await api("/classify-risk", { text });
+    $("risk-sentence").textContent = text;
+    $("risk-out").innerHTML = riskBlock(d.risk_category, d.scores);
+    $("risk-empty").classList.add("hidden");
     $("risk-result").classList.remove("hidden");
-
-  } catch(e) {
-
-    $("risk-result").classList.add("hidden");
-    showErr("risk-err",e.message);
-
+  } catch (e) {
+    showErr("risk-err", e.message);
   } finally {
-
-    setBusy($("risk-btn"),false,"Classify Risk");
+    classifying = false;
+    setBusy($("risk-btn"), false, "Classify risk");
   }
 }
-
-$("risk-btn").onclick=classify;
+$("risk-btn").onclick = classify;
+$("risk-text").addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) classify(); });
 
 loadFilings();
-
 </script>
 </body>
 </html>

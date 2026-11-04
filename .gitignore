@@ -6,4 +6,8 @@ data/*.pdf
 .hf_cache/
 .ipynb_checkpoints/
 *.safetensors
-*.pt
+*.ptvenv/
+__pycache__/
+*.pyc
+models/
+*.pdf
